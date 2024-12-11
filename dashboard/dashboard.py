@@ -68,6 +68,63 @@ with col2:
 with col3:
     st.metric("Total Rentals", main_df["count"].sum())
 
+# Penyewaan Berdasarkan Hari
+st.subheader("Daily")
+weekday_rent_df = create_aggregated_df(main_df, "weekday", "count")
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(
+    x="weekday", y="count", data=weekday_rent_df,
+    hue="weekday", palette="Set2", ax=ax, legend=False
+)
+
+for index, row in weekday_rent_df.iterrows():
+    ax.text(index, row["count"] + 10, f"{row['count']:,}", ha="center", va="bottom", fontsize=12)
+
+ax.set_title("Jumlah Penyewaan Berdasarkan Hari", fontsize=16, weight="bold")
+ax.set_xlabel("Hari", fontsize=14)
+ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
+ax.tick_params(axis="x", labelsize=12)
+ax.tick_params(axis="y", labelsize=12)
+st.pyplot(fig)
+
+# Grafik Berdasarkan Hari Kerja (Workingday)
+st.subheader("Working Days")
+workingday_rent_df = create_aggregated_df(main_df, "workingday", "count")
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(
+    x="workingday", y="count", data=workingday_rent_df,
+    hue="workingday", palette="Blues_d", ax=ax, legend=False
+)
+
+for index, row in workingday_rent_df.iterrows():
+    ax.text(index, row["count"] + 10, f"{row['count']:,}", ha="center", va="bottom", fontsize=12)
+
+ax.set_title("Jumlah Penyewaan Berdasarkan Hari Kerja", fontsize=16, weight="bold")
+ax.set_xlabel("Hari Kerja", fontsize=14)
+ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
+ax.set_xticks([0, 1])
+ax.set_xticklabels(['Bukan Hari Kerja', 'Hari Kerja'], fontsize=12)
+st.pyplot(fig)
+
+# Grafik Berdasarkan Libur (Holiday)
+st.subheader("Holidays")
+holiday_rent_df = create_aggregated_df(main_df, "holiday", "count")
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(
+    x="holiday", y="count", data=holiday_rent_df,
+    hue="holiday", palette="Greens_d", ax=ax,legend=False
+)
+
+for index, row in holiday_rent_df.iterrows():
+    ax.text(index, row["count"] + 10, f"{row['count']:,}", ha="center", va="bottom", fontsize=12)
+
+ax.set_title("Jumlah Penyewaan Berdasarkan Hari Libur", fontsize=16, weight="bold")
+ax.set_xlabel("Hari Libur", fontsize=14)
+ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
+ax.set_xticks([0, 1])
+ax.set_xticklabels(['Bukan Hari Libur', 'Hari Libur'], fontsize=12)
+st.pyplot(fig)
+
 # Penyewaan Bulanan
 st.subheader("Monthly Rentals Trend")
 monthly_rent_df = create_aggregated_df(main_df, "month", "count")
@@ -114,22 +171,5 @@ ax.set_title("Jumlah Penyewaan Berdasarkan Kondisi Cuaca", fontsize=16, weight="
 ax.set_xlabel("Kondisi Cuaca", fontsize=14)
 ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
 ax.tick_params(axis="x", labelsize=12, rotation=15)
-ax.tick_params(axis="y", labelsize=12)
-st.pyplot(fig)
-
-# Penyewaan Berdasarkan Hari
-st.subheader("Daily Trends")
-weekday_rent_df = create_aggregated_df(main_df, "weekday", "count")
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(
-    x="weekday", y="count", data=weekday_rent_df,
-    hue="weekday", palette="Set2", ax=ax
-)
-for index, row in weekday_rent_df.iterrows():
-    ax.text(index, row["count"], f"{row['count']:,}", ha="center", va="bottom")
-ax.set_title("Jumlah Penyewaan Berdasarkan Hari", fontsize=16, weight="bold")
-ax.set_xlabel("Hari", fontsize=14)
-ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
-ax.tick_params(axis="x", labelsize=12)
 ax.tick_params(axis="y", labelsize=12)
 st.pyplot(fig)
