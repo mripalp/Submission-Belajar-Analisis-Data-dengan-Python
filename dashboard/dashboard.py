@@ -89,7 +89,7 @@ season_rent_df = create_aggregated_df(main_df, "season", "count")
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(
     x="season", y="count", data=season_rent_df,
-    palette="coolwarm", ax=ax
+    hue="season", palette="coolwarm", ax=ax
 )
 for index, row in season_rent_df.iterrows():
     ax.text(index, row["count"], f"{row['count']:,}", ha="center", va="bottom")
@@ -106,7 +106,7 @@ weather_rent_df = create_aggregated_df(main_df, "weather_cond", "count")
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(
     x="weather_cond", y="count", data=weather_rent_df,
-    palette="viridis", ax=ax
+    hue="weather_cond", palette="viridis", ax=ax
 )
 for index, row in weather_rent_df.iterrows():
     ax.text(index, row["count"], f"{row['count']:,}", ha="center", va="bottom")
@@ -123,7 +123,7 @@ weekday_rent_df = create_aggregated_df(main_df, "weekday", "count")
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(
     x="weekday", y="count", data=weekday_rent_df,
-    palette="Set2", ax=ax
+    hue="weekday", palette="Set2", ax=ax
 )
 for index, row in weekday_rent_df.iterrows():
     ax.text(index, row["count"], f"{row['count']:,}", ha="center", va="bottom")
