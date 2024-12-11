@@ -27,7 +27,9 @@ day_df["season"] = day_df["season"].map({
     1: "Spring", 2: "Summer", 3: "Fall", 4: "Winter"
 })
 day_df["weekday"] = day_df["weekday"].map({
-    0: "Sun", 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat"
+    0: "Minggu", 1: "Senin", 2: "Selasa", 3: "Rabu", 4: "Kamis", 5: "Jumat", 6: "Sabtu"
+    
+    # 0: "Sun", 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat"
 })
 day_df["weather_cond"] = day_df["weather_cond"].map({
     1: "Clear/Partly Cloudy",
@@ -38,7 +40,7 @@ day_df["weather_cond"] = day_df["weather_cond"].map({
 
 # Fungsi untuk membuat DataFrame agregasi
 def create_aggregated_df(df, group_col, agg_col):
-    return df.groupby(by=group_col).agg({agg_col: "sum"}).reset_index()
+    return df.groupby(by=group_col).agg({agg_col: "mean"}).reset_index()
 
 # Filter data sesuai rentang waktu
 min_date = pd.to_datetime(day_df["dateday"]).dt.date.min()
@@ -59,7 +61,7 @@ main_df = day_df[
 st.title("Bike Sharing Dashboard")
 
 # Penyewaan Harian
-st.subheader("Daily Rentals Trend")
+st.subheader("Daily Trend")
 col1, col2, col3 = st.columns(3)
 with col1:
     st.metric("Casual User", main_df["casual"].sum())
@@ -68,40 +70,21 @@ with col2:
 with col3:
     st.metric("Total Rentals", main_df["count"].sum())
 
-# Penyewaan Berdasarkan Hari
-st.subheader("Daily")
-weekday_rent_df = create_aggregated_df(main_df, "weekday", "count")
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(
-    x="weekday", y="count", data=weekday_rent_df,
-    hue="weekday", palette="Set2", ax=ax, legend=False
-)
-
-for index, row in weekday_rent_df.iterrows():
-    ax.text(index, row["count"] + 10, f"{row['count']:,}", ha="center", va="bottom", fontsize=12)
-
-ax.set_title("Jumlah Penyewaan Berdasarkan Hari", fontsize=16, weight="bold")
-ax.set_xlabel("Hari", fontsize=14)
-ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
-ax.tick_params(axis="x", labelsize=12)
-ax.tick_params(axis="y", labelsize=12)
-st.pyplot(fig)
-
 # Grafik Berdasarkan Hari Kerja (Workingday)
 st.subheader("Working Days")
 workingday_rent_df = create_aggregated_df(main_df, "workingday", "count")
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(
     x="workingday", y="count", data=workingday_rent_df,
-    hue="workingday", palette="Blues_d", ax=ax, legend=False
+    hue="workingday", palette="Blues_d", ax=ax
 )
 
 for index, row in workingday_rent_df.iterrows():
-    ax.text(index, row["count"] + 10, f"{row['count']:,}", ha="center", va="bottom", fontsize=12)
+    ax.text(index, row["count"] + 10, f"{round(row['count'])}", ha="center", va="bottom", fontsize=12)
 
-ax.set_title("Jumlah Penyewaan Berdasarkan Hari Kerja", fontsize=16, weight="bold")
+ax.set_title("Jumlah Pengguna Sepeda Berdasarkan Hari Kerja", fontsize=16, weight="bold")
 ax.set_xlabel("Hari Kerja", fontsize=14)
-ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
+ax.set_ylabel("Jumlah Pengguna Sepeda", fontsize=14)
 ax.set_xticks([0, 1])
 ax.set_xticklabels(['Bukan Hari Kerja', 'Hari Kerja'], fontsize=12)
 st.pyplot(fig)
@@ -112,64 +95,103 @@ holiday_rent_df = create_aggregated_df(main_df, "holiday", "count")
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(
     x="holiday", y="count", data=holiday_rent_df,
-    hue="holiday", palette="Greens_d", ax=ax,legend=False
+    hue="holiday", palette="Greens_d", ax=ax
 )
 
 for index, row in holiday_rent_df.iterrows():
-    ax.text(index, row["count"] + 10, f"{row['count']:,}", ha="center", va="bottom", fontsize=12)
+    ax.text(index, row["count"] + 10, f"{round(row['count'])}", ha="center", va="bottom", fontsize=12)
 
-ax.set_title("Jumlah Penyewaan Berdasarkan Hari Libur", fontsize=16, weight="bold")
+ax.set_title("Jumlah Pengguna Sepeda Berdasarkan Hari Libur", fontsize=16, weight="bold")
 ax.set_xlabel("Hari Libur", fontsize=14)
-ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
+ax.set_ylabel("Jumlah Pengguna Sepeda", fontsize=14)
 ax.set_xticks([0, 1])
 ax.set_xticklabels(['Bukan Hari Libur', 'Hari Libur'], fontsize=12)
 st.pyplot(fig)
 
-# Penyewaan Bulanan
-st.subheader("Monthly Rentals Trend")
-monthly_rent_df = create_aggregated_df(main_df, "month", "count")
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.lineplot(
-    x=monthly_rent_df["month"], y=monthly_rent_df["count"],
-    marker="o", linewidth=2, color="tab:blue", ax=ax
-)
-ax.set_title("Jumlah Penyewaan Bulanan", fontsize=16, weight="bold")
-ax.set_xlabel("Bulan", fontsize=14)
-ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
-ax.tick_params(axis="x", labelsize=12, rotation=45)
-ax.tick_params(axis="y", labelsize=12)
-st.pyplot(fig)
-
-# Penyewaan Berdasarkan Musim
-st.subheader("Seasonal Rentals Trend")
-season_rent_df = create_aggregated_df(main_df, "season", "count")
+# Penyewaan Berdasarkan Hari
+st.subheader("Daily")
+weekday_rent_df = create_aggregated_df(main_df, "weekday", "count")
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(
-    x="season", y="count", data=season_rent_df,
-    hue="season", palette="coolwarm", ax=ax
+    x="weekday", y="count", data=weekday_rent_df,
+    hue="weekday", palette="coolwarm", ax=ax
 )
-for index, row in season_rent_df.iterrows():
-    ax.text(index, row["count"], f"{row['count']:,}", ha="center", va="bottom")
-ax.set_title("Jumlah Penyewaan Berdasarkan Musim", fontsize=16, weight="bold")
-ax.set_xlabel("Musim", fontsize=14)
-ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
+
+for index, row in weekday_rent_df.iterrows():
+    ax.text(index, row["count"] + 10, f"{round(row['count'])}", ha="center", va="bottom", fontsize=12)
+
+ax.set_title("Jumlah Pengguna Sepeda Berdasarkan Hari dalam Seminggu", fontsize=16, weight="bold")
+ax.set_xlabel("Hari dalam seminggu", fontsize=14)
+ax.set_ylabel("Jumlah Pengguna Sepeda", fontsize=14)
+ax.set_xticks(range(7))
+ax.set_xticklabels(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'])
 ax.tick_params(axis="x", labelsize=12)
 ax.tick_params(axis="y", labelsize=12)
 st.pyplot(fig)
 
-# Penyewaan Berdasarkan Kondisi Cuaca
-st.subheader("Weather-based Rental Trend")
-weather_rent_df = create_aggregated_df(main_df, "weather_cond", "count")
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(
-    x="weather_cond", y="count", data=weather_rent_df,
-    hue="weather_cond", palette="viridis", ax=ax
+# Penyewaan Bulanan
+st.subheader("Monthly & Year Trend")
+main_df['month'] = pd.Categorical(
+    main_df['month'], 
+    categories=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], 
+    ordered=True
 )
-for index, row in weather_rent_df.iterrows():
-    ax.text(index, row["count"], f"{row['count']:,}", ha="center", va="bottom")
-ax.set_title("Jumlah Penyewaan Berdasarkan Kondisi Cuaca", fontsize=16, weight="bold")
-ax.set_xlabel("Kondisi Cuaca", fontsize=14)
-ax.set_ylabel("Jumlah Penyewaan", fontsize=14)
-ax.tick_params(axis="x", labelsize=12, rotation=15)
-ax.tick_params(axis="y", labelsize=12)
+monthly_counts = main_df.groupby(by=["month", "year"], observed=False).agg({
+    "count": "sum"
+}).reset_index()
+fig, ax = plt.subplots(figsize=(14, 8))
+sns.lineplot(
+    data=monthly_counts,
+    x="month",
+    y="count",
+    hue="year",
+    palette="rocket",
+    marker="o",
+    ax=ax
+)
+ax.set_title("Jumlah Total Sepeda yang Disewakan Berdasarkan Bulan dan Tahun", fontsize=16, weight="bold")
+ax.set_xlabel(None)
+ax.set_ylabel("Jumlah Pengguna Sepeda", fontsize=14)
+ax.legend(title="Tahun", loc="upper right", fontsize=12, title_fontsize=14)
+plt.tight_layout()
 st.pyplot(fig)
+
+# Penyewaan Berdasarkan Kondisi Cuaca
+st.subheader("Weather-based Trend")
+weather_rent_dft = main_df.groupby('weather_cond').agg({
+    'count': 'mean'
+}).reset_index()
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(
+    x='weather_cond',
+    y='count',
+    hue='weather_cond',
+    data=weather_rent_dft,
+    palette="coolwarm",
+    ax=ax
+)
+for index, row in weather_rent_dft.iterrows():
+    ax.text(index, row["count"], f"{round(row['count'])}", ha="center", va="bottom", fontsize=12)
+ax.set_title("Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca", fontsize=16, weight="bold")
+ax.set_xlabel("Kondisi Cuaca", fontsize=14)
+ax.set_ylabel("Jumlah Pengguna Sepeda", fontsize=14)
+plt.tight_layout()
+st.pyplot(fig)
+
+# Penyewaan Berdasarkan Musim
+# st.subheader("Seasonal Rentals Trend")
+# season_rent_df = create_aggregated_df(main_df, "season", "count")
+# fig, ax = plt.subplots(figsize=(12, 6))
+# sns.barplot(
+#     x="season", y="count", data=season_rent_df,
+#     hue="season", palette="coolwarm", ax=ax
+# )
+# for index, row in season_rent_df.iterrows():
+#     ax.text(index, row["count"], f"{round(row['count'])}", ha="center", va="bottom")
+# ax.set_title("Jumlah Penyewaan Berdasarkan Musim", fontsize=16, weight="bold")
+# ax.set_xlabel("Musim", fontsize=14)
+# ax.set_ylabel("Jumlah Pengguna Sepeda", fontsize=14)
+# ax.tick_params(axis="x", labelsize=12)
+# ax.tick_params(axis="y", labelsize=12)
+# st.pyplot(fig)
